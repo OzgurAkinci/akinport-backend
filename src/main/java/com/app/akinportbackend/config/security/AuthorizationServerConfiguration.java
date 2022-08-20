@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+
 @Configuration
 @EnableAuthorizationServer
 public class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter{
@@ -41,12 +43,12 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .authorizedGrantTypes(GRANT_TYPE, "refresh_token")
                 .scopes(SCOPE_READ, SCOPE_WRITE)
                 .accessTokenValiditySeconds(ACCESS_TOKEN_VALIDITY_SECONDS).
-                refreshTokenValiditySeconds(REFRESH_TOKEN_VALIDITY_SECONDS);
+                refreshTokenValiditySeconds(REFRESH_TOKEN_VALIDITY_SECONDS).resourceIds("api");;
     }
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
-        endpoints.allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST).
+        endpoints.allowedTokenEndpointRequestMethods(HttpMethod.GET, HttpMethod.POST).accessTokenConverter(accessTokenConverter()).
                 tokenStore(tokenStore).authenticationManager(authenticationManager);
     }
 
@@ -65,6 +67,10 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         return new CustomTokenEnhancer();
     }
 
-
+    @Bean
+    JwtAccessTokenConverter accessTokenConverter() {
+        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+        return converter;
+    }
 
 }
